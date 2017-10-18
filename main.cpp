@@ -13,12 +13,16 @@ LRESULT CALLBACK WndProc (HWND hwnd,
                           UINT msg,
                           WPARAM wParam,
                           LPARAM lParam );
-void func(HWND handle);
-void text(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
-
-//HWND hText;
-HWND hText1;
+void func(HWND *handle);
+void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
+void symbole(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
+void wstaw(HWND *hStatic, char *lancuch);
+/* Variable */
+HWND hText[7];
 HWND hPrzycisk;
+HWND hStatic[7];
+HWND hS_text[7];
+
 
 int WINAPI WinMain (HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -56,8 +60,8 @@ int WINAPI WinMain (HINSTANCE hInstance,
            WS_OVERLAPPEDWINDOW, /* default window */
            CW_USEDEFAULT,       /* Windows decides the position */
            CW_USEDEFAULT,       /* where the window ends up on the screen */
-           1000,                 /* The programs width */
-           700,                 /* and height in pixels */
+           800,                 /* The programs width */
+           370,                 /* and height in pixels */
            NULL, NULL,               /* No menu */
            hInstance,       /* Program Instance handler */
            NULL                 /* No Window Creation data */
@@ -69,12 +73,33 @@ int WINAPI WinMain (HINSTANCE hInstance,
         return 1;
     }
     /* Pole Tekstowe 1 */
-    text(5, 5, 100, 30, &hText1, hWnd, hInstance);
+    value(100, 15, 100, 30, &hText[0], hWnd, hInstance);
+    value(100, 55, 100, 30, &hText[1], hWnd, hInstance);
+    value(100, 95, 100, 30, &hText[2], hWnd, hInstance);
+    value(100, 135, 100, 30, &hText[3], hWnd, hInstance);
+    value(100, 175, 100, 30, &hText[4], hWnd, hInstance);
+    value(100, 215, 100, 30, &hText[5], hWnd, hInstance);
+    value(100, 255, 100, 30, &hText[6], hWnd, hInstance);
     /* Przycisk */
     hPrzycisk = CreateWindowEx(WS_EX_CLIENTEDGE, "BUTTON",
-                               "przycisk", WS_CHILD | WS_VISIBLE,
-                               5, 10, 100, 30, hWnd, NULL, hInstance, NULL);
-
+                               "Oblicz", WS_CHILD | WS_VISIBLE,
+                               240, 135, 100, 30, hWnd, NULL, hInstance, NULL);
+    /* Static */
+    symbole(10, 15, 60, 30, &hStatic[0], hWnd, hInstance);
+    symbole(10, 55, 60, 30, &hStatic[1], hWnd, hInstance);
+    symbole(10, 95, 60, 30, &hStatic[2], hWnd, hInstance);
+    symbole(10, 135, 60, 30, &hStatic[3], hWnd, hInstance);
+    symbole(10, 175, 60, 30, &hStatic[4], hWnd, hInstance);
+    symbole(10, 215, 60, 30, &hStatic[5], hWnd, hInstance);
+    symbole(10, 255, 60, 30, &hStatic[6], hWnd, hInstance);
+    /* Ustawienie tekstu */
+    wstaw(&hStatic[0], "R[Ohm]=");
+    wstaw(&hStatic[1], "L[H]=");
+    wstaw(&hStatic[2], "E[V]=");
+    wstaw(&hStatic[3], "f[Hz]=");
+    wstaw(&hStatic[4], "XR[Ohm]=");
+    wstaw(&hStatic[5], "XL[Ohm]=");
+    wstaw(&hStatic[6], "Z[Ohm]=");
     /* Make the window visible on the screen */
     ShowWindow (hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -109,7 +134,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 
 /*  This function is called by the Windows function DispatchMessage()  */
 
-LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     switch (msg)                  /* handle the messages */
     {
@@ -134,18 +159,28 @@ LRESULT CALLBACK WindowProcedure (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     return 0;
 }
-void func(HWND handle)
+void func(HWND *handle)
 {
     // Pobiera ilosc znaku w polu
-    DWORD length = GetWindowTextLength(handle);
+    DWORD length = GetWindowTextLength(*handle);
     // Alokuje Pamiec dla tych znakow
     LPSTR buf = (LPSTR) GlobalAlloc(GPTR, length);
     // Pobiera tekst z okna i zapisuje je w buforz
-    GetWindowText(handle, buf, length + 1);
+    GetWindowText(*handle, buf, length + 1);
 }
-void text(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance)
+void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance)
 {
     *hText = CreateWindowEx(WS_EX_CLIENTEDGE, "EDIT",
                                NULL, WS_CHILD | WS_VISIBLE ,
                                x1, y1, x2, y2, hWnd, NULL, hInstance, NULL);
+}
+void symbole(int x1, int y1, int x2, int y2, HWND *hStatic , HWND hWnd, HINSTANCE hInstance)
+{
+    *hStatic = CreateWindowEx(0, "STATIC",
+                            NULL, WS_CHILD | WS_VISIBLE | SS_LEFT,
+                            x1, y1, x2, y2, hWnd, NULL, hInstance, NULL);
+}
+void wstaw(HWND *hStatic, char *lancuch)
+{
+    SetWindowText(*hStatic, lancuch);
 }
