@@ -13,15 +13,16 @@ LRESULT CALLBACK WndProc (HWND hwnd,
                           UINT msg,
                           WPARAM wParam,
                           LPARAM lParam );
-void func(HWND *handle);
+void func(HWND handle, LPSTR *buf);
 void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
 void symbole(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
 void wstaw(HWND *hStatic, char *lancuch);
 /* Variable */
-HWND hText[7];
+HWND hText[6];
 HWND hPrzycisk;
-HWND hStatic[7];
-HWND hS_text[7];
+HWND hStatic[6];
+HWND hS_text[6];
+LPSTR *liczba[5];
 
 
 int WINAPI WinMain (HINSTANCE hInstance,
@@ -34,14 +35,14 @@ int WINAPI WinMain (HINSTANCE hInstance,
     /* The Window structure */
     wc.hInstance = hInstance;
     wc.lpszClassName = NazwaKlasy;
-    wc.lpfnWndProc = WndProc;      /* WskaŸnik do procedury obs³uguj¹cej okno */
+    wc.lpfnWndProc = WndProc;      /* Wskaznik do procedury obslugujacej okno */
     wc.style = 0;                 /* Catch double-clicks */
     wc.cbSize = sizeof (WNDCLASSEX);
     /* Use default icon and mouse-pointer */
     wc.hIcon = LoadIcon (NULL, IDI_APPLICATION);
     wc.hCursor = LoadCursor (NULL, IDC_ARROW);
     wc.lpszMenuName = NULL;                 /* No menu */
-    wc.lpszClassName = NazwaKlasy;          // Nazwa klasy, któr¹ tworzymy
+    wc.lpszClassName = NazwaKlasy;          // Nazwa klasy, ktÃ³rÂ¹ tworzymy
     wc.cbClsExtra = 0;                      /* No extra bytes after the window class */
     wc.cbWndExtra = 0;                      /* structure or the window instance */
     wc.hIconSm = LoadIcon( NULL, IDI_APPLICATION );
@@ -79,7 +80,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
     value(100, 135, 100, 30, &hText[3], hWnd, hInstance);
     value(100, 175, 100, 30, &hText[4], hWnd, hInstance);
     value(100, 215, 100, 30, &hText[5], hWnd, hInstance);
-    value(100, 255, 100, 30, &hText[6], hWnd, hInstance);
+
     /* Przycisk */
     hPrzycisk = CreateWindowEx(WS_EX_CLIENTEDGE, "BUTTON",
                                "Oblicz", WS_CHILD | WS_VISIBLE,
@@ -91,15 +92,20 @@ int WINAPI WinMain (HINSTANCE hInstance,
     symbole(10, 135, 60, 30, &hStatic[3], hWnd, hInstance);
     symbole(10, 175, 60, 30, &hStatic[4], hWnd, hInstance);
     symbole(10, 215, 60, 30, &hStatic[5], hWnd, hInstance);
-    symbole(10, 255, 60, 30, &hStatic[6], hWnd, hInstance);
+
     /* Ustawienie tekstu */
     wstaw(&hStatic[0], "R[Ohm]=");
     wstaw(&hStatic[1], "L[H]=");
-    wstaw(&hStatic[2], "E[V]=");
-    wstaw(&hStatic[3], "f[Hz]=");
-    wstaw(&hStatic[4], "XR[Ohm]=");
-    wstaw(&hStatic[5], "XL[Ohm]=");
-    wstaw(&hStatic[6], "Z[Ohm]=");
+    wstaw(&hStatic[2], "f[Hz]=");
+    wstaw(&hStatic[3], "XR[Ohm]=");
+    wstaw(&hStatic[4], "XL[Ohm]=");
+    wstaw(&hStatic[5], "Z[Ohm]=");
+
+    func(hText[0], liczba[0]);
+    func(hText[1], liczba[1]);
+    func(hText[2], liczba[2]);
+    //while()
+
     /* Make the window visible on the screen */
     ShowWindow (hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -151,7 +157,7 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps; // deklaracja struktury
             HDC hdc = BeginPaint( hwnd, & ps );
-            // instukcje rysuj¹ce coœ na oknie
+            // instukcje rysujÂ¹ce coÅ“ na oknie
             // ...
             EndPaint( hwnd, & ps ); // zwalniamy hdc
             break;
@@ -159,14 +165,14 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     }
     return 0;
 }
-void func(HWND *handle)
+void func(HWND handle, LPSTR *buf)
 {
     // Pobiera ilosc znaku w polu
-    DWORD length = GetWindowTextLength(*handle);
+    DWORD length = GetWindowTextLength(handle);
     // Alokuje Pamiec dla tych znakow
-    LPSTR buf = (LPSTR) GlobalAlloc(GPTR, length);
-    // Pobiera tekst z okna i zapisuje je w buforz
-    GetWindowText(*handle, buf, length + 1);
+    *buf = (LPSTR) GlobalAlloc(GPTR, length);
+    // Pobiera tekst z okna i zapisuje je w buforze
+    GetWindowText(handle, *buf, length + 1);
 }
 void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance)
 {
