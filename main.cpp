@@ -6,6 +6,7 @@
 
 #include <tchar.h>
 #include <windows.h>
+#include <stdlib.h>
 
 LPSTR NazwaKlasy = "Klasa123";
 /* Prototypy funkcji */
@@ -13,7 +14,7 @@ LRESULT CALLBACK WndProc (HWND hwnd,
                           UINT msg,
                           WPARAM wParam,
                           LPARAM lParam );
-void func(HWND handle, LPSTR *buf);
+double func(HWND handle);
 void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
 void symbole(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance);
 void wstaw(HWND *hStatic, char *lancuch);
@@ -22,8 +23,11 @@ HWND hText[6];
 HWND hPrzycisk;
 HWND hStatic[6];
 HWND hS_text[6];
-LPSTR *liczba[5];
-
+double liczba1, liczba2, liczba3, liczba4, liczba5;
+double c_wynik, Xl_wynik;
+char str_1[40];
+char str_2[40];
+char str_3[40];
 
 int WINAPI WinMain (HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -101,29 +105,11 @@ int WINAPI WinMain (HINSTANCE hInstance,
     wstaw(&hStatic[4], "XL[Ohm]=");
     wstaw(&hStatic[5], "Z[Ohm]=");
 
-    func(hText[0], liczba[0]);
-    func(hText[1], liczba[1]);
-    func(hText[2], liczba[2]);
-    //while()
-
     /* Make the window visible on the screen */
     ShowWindow (hWnd, nCmdShow);
     UpdateWindow(hWnd);
 
-    // Wyswietlenie obrazu
-    HBITMAP hbmObraz;
-    hbmObraz = (HBITMAP)LoadImage(NULL, "Obwod RL.bmp", IMAGE_BITMAP, 0,0,LR_LOADFROMFILE);
-    HDC hdcOkno = GetDC(hWnd);
-    HDC hdcNowy = CreateCompatibleDC(hdcOkno);
-    BITMAP bmInfo;
-    GetObject(hbmObraz, sizeof(bmInfo), &bmInfo);
-    SelectObject(hdcNowy, hbmObraz);
-    BitBlt(hdcOkno, 450, 20, 320, 280, hdcNowy, 0, 0, SRCCOPY);
-    DeleteObject(hbmObraz);
-    DeleteDC(hdcNowy);
-    DeleteDC(hdcOkno);
-    ReleaseDC( hWnd, hdcOkno );
-    //
+
     /* Run the message loop. It will run until GetMessage() returns 0 */
     while (GetMessage (&messages, NULL, 0, 0))
     {
@@ -153,26 +139,59 @@ LRESULT CALLBACK WndProc (HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             break;
         default:
             return DefWindowProc(hwnd, msg, wParam, lParam);
+            // Wyswietlenie obrazu
         case WM_PAINT:
         {
             PAINTSTRUCT ps; // deklaracja struktury
-            HDC hdc = BeginPaint( hwnd, & ps );
-            // instukcje rysuj¹ce coœ na oknie
-            // ...
+            HDC hdcOkno = BeginPaint( hwnd, & ps );
+            HBITMAP hbmObraz;
+            hbmObraz = (HBITMAP)LoadImage(NULL, "Obwod RL.bmp", IMAGE_BITMAP, 0,0,LR_LOADFROMFILE);
+            HDC hdcNowy = CreateCompatibleDC(hdcOkno);
+            BITMAP bmInfo;
+            GetObject(hbmObraz, sizeof(bmInfo), &bmInfo);
+            SelectObject(hdcNowy, hbmObraz);
+            BitBlt(hdcOkno, 450, 20, 320, 280, hdcNowy, 0, 0, SRCCOPY);
+            DeleteObject(hbmObraz);
+            DeleteDC(hdcNowy);
+            DeleteDC(hdcOkno);
+            ReleaseDC( hwnd, hdcOkno );
+
             EndPaint( hwnd, & ps ); // zwalniamy hdc
             break;
         }
-    }
+        case WM_COMMAND:
+        {
+            if(( HWND ) lParam == hPrzycisk )
+            {
+                liczba1 = func(hText[0]);
+                liczba2 = func(hText[1]);
+                liczba3 = func(hText[2]);
+                Xl_wynik = 2*3.14*liczba3*liczba2;
+                c_wynik = (liczba1 + Xl_wynik);
+                itoa(liczba1, str_1, 10);
+                itoa(Xl_wynik, str_2, 10);
+                itoa(c_wynik, str_3, 10);
+                wstaw(&hText[3], str_1);
+                wstaw(&hText[4], str_2);
+                wstaw(&hText[5], str_3);
+            }
+        break;
+        }
+
     return 0;
+    }
 }
-void func(HWND handle, LPSTR *buf)
+double func(HWND handle)
 {
     // Pobiera ilosc znaku w polu
     DWORD length = GetWindowTextLength(handle);
     // Alokuje Pamiec dla tych znakow
-    *buf = (LPSTR) GlobalAlloc(GPTR, length);
+    LPSTR buf = (LPSTR) GlobalAlloc(GPTR, length);
     // Pobiera tekst z okna i zapisuje je w buforze
-    GetWindowText(handle, *buf, length + 1);
+    GetWindowText(handle, (LPSTR) buf, length + 1);
+    double wynik = atoi(buf);
+    GlobalFree( buf );
+    return wynik;
 }
 void value(int x1, int y1, int x2, int y2, HWND *hText, HWND hWnd, HINSTANCE hInstance)
 {
